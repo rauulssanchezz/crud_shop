@@ -1,5 +1,6 @@
 import 'package:crud_shop/presentation/widgets/text_form_field/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -67,7 +68,7 @@ class _FormState extends State<_Form> {
                 
                       CustomTextFormField(
                         controller: _passwordController, 
-                        focusNode: _userFocus, 
+                        focusNode: _passwordFocus, 
                         isPassword: true,
                         onFieldSubmitted: (_) => _passwordFocus.unfocus(),
                         labelText: 'Contraseña',
@@ -98,7 +99,7 @@ class _FormState extends State<_Form> {
               ),
               TextButton(
                 onPressed: () {
-                  
+                  context.push('/signup');
                 },
                 child: Text(
                   '¿No tienes una cuenta? ¡Regístrate!',
