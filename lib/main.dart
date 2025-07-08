@@ -12,12 +12,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Crud Shop',
-      theme: AppTheme.themeData(),
-      home: MaterialApp.router(
+    return MaterialApp.router(
+        title: 'Crud Shop',
+        theme: AppTheme.themeData(),
+        debugShowCheckedModeBanner: false,
         routerConfig: AppRouter.router,
-      )
     );
   }
 }
