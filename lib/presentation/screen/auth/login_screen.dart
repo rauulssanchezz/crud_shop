@@ -46,7 +46,7 @@ class _FormState extends State<_Form> {
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 0),
           child: Column(
             children: [
               Expanded(
