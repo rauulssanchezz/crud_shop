@@ -20,10 +20,7 @@ class UserModel {
   })  : _userName = userName,
         _email = email,
         _password = password,
-        _registrationTokenList = registrationTokenList,
-        assert(email != '', '_Email cant be null'),
-        assert(password != '', '_Password cant be null'),
-        assert(registrationTokenList.isNotEmpty, 'An error has ocurred');
+        _registrationTokenList = registrationTokenList;
 
   String get getUserName => _userName;
   String get getPassword => _password;

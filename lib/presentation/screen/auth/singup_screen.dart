@@ -39,6 +39,8 @@ class _FormState extends State<_Form> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  bool _isLoading =  false;
+
   @override
   void dispose() {
     _userFocus.dispose();
@@ -55,10 +57,17 @@ class _FormState extends State<_Form> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (isSignUp) {
+        setState(() => _isLoading = false);
         authProvider.resetFlags();
         context.push('/login');
       }
     });
+
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(strokeWidth: 3),
+      );
+    }
 
     return SafeArea(
       child: Center(
@@ -122,7 +131,8 @@ class _FormState extends State<_Form> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          setState(() => _isLoading = true);
                           String userName = _userController.text;
                           _userController.text = '';
                       
@@ -136,21 +146,42 @@ class _FormState extends State<_Form> {
                           _confirmPasswordController.text = '';
 
                           if (password != confirmPassword) {
-                            throw Exception('Passwords must match');
+                            setState(() => _isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Las contraseñas no coinciden'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
                           }
 
                           List<String> registrationTokenList = [
                             'provisional'
                           ];
-                      
-                          UserModel newUser = UserModel(
-                            userName: userName, 
-                            email: email, 
-                            password: password, 
-                            registrationTokenList: registrationTokenList
-                          );
 
-                          authProvider.signUp(newUser);
+                          try {
+                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+                            if (email == '' || userName == '' || password == '') throw ErrorHint('Todos los campos son obligatorios');
+                            if (!emailRegex.hasMatch(email)) throw ErrorHint('Email no valido');
+                    
+                            UserModel newUser = UserModel(
+                              userName: userName, 
+                              email: email, 
+                              password: password, 
+                              registrationTokenList: registrationTokenList
+                            );
+                            authProvider.signUp(newUser);
+                          } catch (e) {
+                            setState(() => _isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('$e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         },
                         child: const Text('Registrarse')
                       ),

@@ -16,6 +16,7 @@ class AuthProvider extends ChangeNotifier {
   bool isSignUpComplete = false;
   bool isLogIn = false;
   UserModel? get getUser => _user;
+  String _errorMessage = 'Error en el servidor';
 
   Future<void> login(String email, String password) async {
     try {
@@ -30,7 +31,8 @@ class AuthProvider extends ChangeNotifier {
         // Assuming UserModel has a fromMap or fromJson constructor
         _user = UserModel.fromMap(userData);
       } else {
-        throw Exception('User not found');
+        _errorMessage = 'Usuario o contraseña incorrectos';
+        throw ErrorHint(_errorMessage);
       }
 
       final prefs = await SharedPreferences.getInstance();
@@ -39,7 +41,7 @@ class AuthProvider extends ChangeNotifier {
       isLogIn = true;
       notifyListeners();
     } catch (e) {
-      rethrow;
+      throw ErrorHint(_errorMessage);
     }
   }
 
@@ -59,7 +61,7 @@ class AuthProvider extends ChangeNotifier {
       isSignUpComplete = true;
       notifyListeners();
     } catch (e) {
-      rethrow;
+      throw ErrorHint('$e');
     }
   }
 
