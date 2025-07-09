@@ -59,7 +59,7 @@ class _FormState extends State<_Form> {
                         focusNode: _userFocus, 
                         isPassword: false,
                         onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
-                        labelText: 'Nombre de usuario',
+                        labelText: 'Correo electrónico',
                       ),
                 
                       SizedBox(

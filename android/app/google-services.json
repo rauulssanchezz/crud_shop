@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "332331938609",
+    "project_id": "crudshop-5f11d",
+    "storage_bucket": "crudshop-5f11d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332331938609:android:a07b34dd47b37b1c9ff610",
+        "android_client_info": {
+          "package_name": "com.example.crud_shop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsy2s62vIiS-7hTz1oZEvV1AfvXabr08o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
