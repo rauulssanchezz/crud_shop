@@ -1,6 +1,8 @@
+import 'package:crud_shop/presentation/providers/auth_provider.dart';
 import 'package:crud_shop/presentation/widgets/text_form_field/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -33,6 +35,14 @@ class _FormState extends State<_Form> {
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<AuthProvider>().checkLogin();
+    });
+  }
+
+  @override
   void dispose() {
     _userFocus.dispose();
     _passwordFocus.dispose();
@@ -43,6 +53,16 @@ class _FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = context.read<AuthProvider>();
+    final bool isLogIn = context.watch<AuthProvider>().isLogIn;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isLogIn) {
+        authProvider.resetFlags();
+        context.go('/home');
+      }
+    });
+    
     return SafeArea(
       child: Center(
         child: Padding(
@@ -82,13 +102,13 @@ class _FormState extends State<_Form> {
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () {
-                            String userName = _userController.text;
+                            String email = _userController.text;
                             _userController.text = '';
                         
                             String password = _passwordController.text;
                             _passwordController.text = '';
                         
-                            print('User: $userName, Password: $password');
+                            authProvider.login(email, password);
                           },
                           child: const Text('Iniciar Sesión')
                         ),

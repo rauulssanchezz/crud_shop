@@ -1,6 +1,9 @@
+import 'package:crud_shop/domain/model/user.dart';
+import 'package:crud_shop/presentation/providers/auth_provider.dart';
 import 'package:crud_shop/presentation/widgets/text_form_field/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -47,6 +50,16 @@ class _FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    AuthProvider authProvider = context.read<AuthProvider>();
+    final bool isSignUp = context.watch<AuthProvider>().isSignUpComplete;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isSignUp) {
+        authProvider.resetFlags();
+        context.push('/login');
+      }
+    });
+
     return SafeArea(
       child: Center(
         child: Padding(
@@ -121,8 +134,23 @@ class _FormState extends State<_Form> {
               
                           String confirmPassword = _confirmPasswordController.text;
                           _confirmPasswordController.text = '';
+
+                          if (password != confirmPassword) {
+                            throw Exception('Passwords must match');
+                          }
+
+                          List<String> registrationTokenList = [
+                            'provisional'
+                          ];
                       
-                          print('User: $userName, Email: $email,  Password: $password, ConfirmPassword: $confirmPassword');
+                          UserModel newUser = UserModel(
+                            userName: userName, 
+                            email: email, 
+                            password: password, 
+                            registrationTokenList: registrationTokenList
+                          );
+
+                          authProvider.signUp(newUser);
                         },
                         child: const Text('Registrarse')
                       ),
