@@ -18,13 +18,28 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get getUser => _user;
   String _errorMessage = 'Error en el servidor';
 
-  Future<void> login(String email, String password) async {
-    try {
-      final querySnapshot = await _db
+  Future<QuerySnapshot<Map<String, dynamic>>> _findUser({required String email, String password = 'findByEmail'}) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot;
+    
+    if (password == 'findByEmail') {
+      querySnapshot = await _db
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+    } else {
+      querySnapshot = await _db
           .collection('users')
           .where('email', isEqualTo: email)
           .where('password', isEqualTo: password)
           .get();
+    }
+
+    return querySnapshot;
+  }
+
+  Future<void> login(String email, String password) async {
+    try {
+      final querySnapshot = await _findUser(email: email, password: password);
 
       if (querySnapshot.docs.isNotEmpty) {
         final userData = querySnapshot.docs.first.data();
@@ -49,6 +64,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = user;
 
+      final querySnapshot = await _findUser(email: user.getEmail);
+
+      if (querySnapshot.docs.isNotEmpty) {
+        _errorMessage = 'El usuario ya existe';
+        throw ErrorHint(_errorMessage);
+      }
+
       Map<String, dynamic> userData = {
         'name': user.getUserName,
         'email': user.getEmail,
@@ -61,7 +83,7 @@ class AuthProvider extends ChangeNotifier {
       isSignUpComplete = true;
       notifyListeners();
     } catch (e) {
-      throw ErrorHint('$e');
+      throw ErrorHint(_errorMessage);
     }
   }
 

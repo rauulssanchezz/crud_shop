@@ -172,7 +172,7 @@ class _FormState extends State<_Form> {
                               password: password, 
                               registrationTokenList: registrationTokenList
                             );
-                            authProvider.signUp(newUser);
+                            await authProvider.signUp(newUser);
                           } catch (e) {
                             setState(() => _isLoading = false);
                             ScaffoldMessenger.of(context).showSnackBar(
