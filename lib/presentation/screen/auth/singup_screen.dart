@@ -69,14 +69,83 @@ class _FormState extends State<_Form> {
       );
     }
 
+    void validations({
+      required String password,
+      required String confirmPassword,
+      required String email,
+      required String userName
+    }) {
+      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+      if (password != confirmPassword) throw ErrorHint('Las contraseñas no coinciden');
+      if (email == '' || userName == '' || password == '') throw ErrorHint('Todos los campos son obligatorios');
+      if (!emailRegex.hasMatch(email)) throw ErrorHint('Email no valido');
+    }
+
+    void signUp({
+      required String password,
+      required String confirmPassword,
+      required String email,
+      required String userName
+    }) async {
+      List<String> registrationTokenList = [
+        'provisional'
+      ];
+
+      try {
+        validations(
+          password: password, 
+          confirmPassword: confirmPassword, 
+          email: email, 
+          userName: userName
+        );
+
+        UserModel newUser = UserModel(
+          userName: userName, 
+          email: email, 
+          password: password, 
+          registrationTokenList: registrationTokenList
+        );
+        await authProvider.signUp(newUser);
+      } catch (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
+    void updateControllers() {
+      setState(() => _isLoading = true);
+      String userName = _userController.text;
+      _userController.text = '';
+  
+      String password = _passwordController.text;
+      _passwordController.text = '';
+
+      String email = _emailController.text;
+      _emailController.text = '';
+
+      String confirmPassword = _confirmPasswordController.text;
+      _confirmPasswordController.text = '';
+
+      signUp(
+        password: password,
+        confirmPassword: confirmPassword,
+        email: email,
+        userName: userName
+      );
+    }
+
     return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Form(
+      child: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+              child: Form(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -131,79 +200,32 @@ class _FormState extends State<_Form> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () async {
-                          setState(() => _isLoading = true);
-                          String userName = _userController.text;
-                          _userController.text = '';
-                      
-                          String password = _passwordController.text;
-                          _passwordController.text = '';
-              
-                          String email = _emailController.text;
-                          _emailController.text = '';
-              
-                          String confirmPassword = _confirmPasswordController.text;
-                          _confirmPasswordController.text = '';
-
-                          if (password != confirmPassword) {
-                            setState(() => _isLoading = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Las contraseñas no coinciden'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          List<String> registrationTokenList = [
-                            'provisional'
-                          ];
-
-                          try {
-                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-                            if (email == '' || userName == '' || password == '') throw ErrorHint('Todos los campos son obligatorios');
-                            if (!emailRegex.hasMatch(email)) throw ErrorHint('Email no valido');
-                    
-                            UserModel newUser = UserModel(
-                              userName: userName, 
-                              email: email, 
-                              password: password, 
-                              registrationTokenList: registrationTokenList
-                            );
-                            await authProvider.signUp(newUser);
-                          } catch (e) {
-                            setState(() => _isLoading = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('$e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: updateControllers,
                         child: const Text('Registrarse')
                       ),
-                    )
+                    ),
+
+                    SizedBox(
+                      height: 20.0,
+                    ),
+
+                    TextButton(
+                    onPressed: () {
+                      context.push('/login');
+                    },
+                    child: Text(
+                      '¿Ya tienes una cuenta? Inicia sesión!',
+                      style: TextStyle(
+                        color: Color.fromRGBO(156, 112, 74, 1)
+                      ),
+                    ),
+                  )
                   ],
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  context.push('/login');
-                },
-                child: Text(
-                  '¿Ya tienes una cuenta? Inicia sesión!',
-                  style: TextStyle(
-                    color: Color.fromRGBO(156, 112, 74, 1)
-                  ),
-                ),
-              )
-            ],
-          ),
-        )
-      ),
+            ),
+          )
+        ),
     );
   }
 }

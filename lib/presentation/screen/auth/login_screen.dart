@@ -54,9 +54,37 @@ class _FormState extends State<_Form> {
       if (isLogIn) {
         setState(() => _isLoading = false);
         authProvider.resetFlags();
-        context.go('/home');
+        context.go('/shop');
       }
     });
+
+    void logIn({
+      required String email,
+      required String password
+    }) async {
+      try {
+        await authProvider.login(email, password);
+      } catch (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      }
+    }
+
+    void updateControllers() {
+      setState(() => _isLoading = true);
+      String email = _userController.text;
+      _userController.text = '';
+  
+      String password = _passwordController.text;
+      _passwordController.text = '';
+
+      logIn(email: email, password: password);
+    }
     
     return FutureBuilder(
       future: context.read<AuthProvider>().checkLogin(),
@@ -68,85 +96,66 @@ class _FormState extends State<_Form> {
         }
 
         return SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Form(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CustomTextFormField(
-                            controller: _userController, 
-                            focusNode: _userFocus, 
-                            isPassword: false,
-                            onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
-                            labelText: 'Correo electrónico',
+          child: SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
+                  child: Form(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CustomTextFormField(
+                          controller: _userController, 
+                          focusNode: _userFocus, 
+                          isPassword: false,
+                          onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
+                          labelText: 'Correo electrónico',
+                        ),
+                  
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                  
+                        CustomTextFormField(
+                          controller: _passwordController, 
+                          focusNode: _passwordFocus, 
+                          isPassword: true,
+                          onFieldSubmitted: (_) => _passwordFocus.unfocus(),
+                          labelText: 'Contraseña',
+                        ),
+                  
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                  
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: updateControllers,
+                            child: const Text('Iniciar Sesión')
                           ),
-                    
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                    
-                          CustomTextFormField(
-                            controller: _passwordController, 
-                            focusNode: _passwordFocus, 
-                            isPassword: true,
-                            onFieldSubmitted: (_) => _passwordFocus.unfocus(),
-                            labelText: 'Contraseña',
-                          ),
-                    
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                    
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton(
-                              onPressed: () async {
-                                setState(() => _isLoading = true);
-                                String email = _userController.text;
-                                _userController.text = '';
-                            
-                                String password = _passwordController.text;
-                                _passwordController.text = '';
-                            
-                                try {
-                                  await authProvider.login(email, password);
-                                } catch (e) {
-                                  setState(() => _isLoading = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('$e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                }
-                              },
-                              child: const Text('Iniciar Sesión')
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+
+                        TextButton(
+                          onPressed: () {
+                            context.push('/signup');
+                          },
+                          child: Text(
+                            '¿No tienes una cuenta? ¡Regístrate!',
+                            style: TextStyle(
+                              color: Color.fromRGBO(156, 112, 74, 1)
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      context.push('/signup');
-                    },
-                    child: Text(
-                      '¿No tienes una cuenta? ¡Regístrate!',
-                      style: TextStyle(
-                        color: Color.fromRGBO(156, 112, 74, 1)
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            )
-          ),
+                ),
+            ),
+          )
         );
       }
     );
