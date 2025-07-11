@@ -1,4 +1,4 @@
-import 'package:crud_shop/domain/model/user.dart';
+import 'package:crud_shop/domain/models/user.dart';
 import 'package:crud_shop/presentation/providers/auth_provider.dart';
 import 'package:crud_shop/presentation/widgets/text_form_field/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
