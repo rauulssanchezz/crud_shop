@@ -26,7 +26,6 @@ class ProductProvider extends ChangeNotifier {
     required String description,
     required double price,
     required int stock,
-    String? imageUrl,
   }) async {
     try {
       final querySnapshot = await _findProduct(name: name);
@@ -44,8 +43,7 @@ class ProductProvider extends ChangeNotifier {
         'name': name,
         'description': description,
         'price': price,
-        'stock': stock,
-        if (imageUrl != null) 'imageUrl': imageUrl,
+        'stock': stock
       };
 
       await docRef.set(productData);
