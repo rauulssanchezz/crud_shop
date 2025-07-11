@@ -67,11 +67,11 @@ class _FormState extends State<_Form> {
       } catch (e) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+          SnackBar(
+            content: Text('$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
 

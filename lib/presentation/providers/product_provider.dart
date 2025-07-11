@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crud_shop/domain/models/product.dart';
 import 'package:flutter/material.dart';
 
 class ProductProvider extends ChangeNotifier {
@@ -8,6 +7,7 @@ class ProductProvider extends ChangeNotifier {
   ProductProvider({required FirebaseFirestore db}) : _db = db;
 
   String _errorMessage = 'Error en el servidor';
+  bool productAdded = false;
 
   Future<QuerySnapshot<Map<String, dynamic>>> _findProduct({required String name}) async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot;
@@ -31,7 +31,7 @@ class ProductProvider extends ChangeNotifier {
       final querySnapshot = await _findProduct(name: name);
 
       if (querySnapshot.docs.isNotEmpty) {
-        _errorMessage = 'El usuario ya existe';
+        _errorMessage = 'El producto ya existe';
         throw ErrorHint(_errorMessage);
       }
 
@@ -47,10 +47,18 @@ class ProductProvider extends ChangeNotifier {
       };
 
       await docRef.set(productData);
+
+      productAdded = true;
+      notifyListeners();
     } catch(e) {
       throw ErrorHint(_errorMessage);
     }
 
     return 'Producto guardado correctamente';
+  }
+
+  void resetFlags() {
+    productAdded = false;
+    notifyListeners();
   }
 }

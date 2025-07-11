@@ -1,5 +1,7 @@
+import 'package:crud_shop/presentation/providers/product_provider.dart';
 import 'package:crud_shop/presentation/widgets/text_form_field/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -19,14 +21,109 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _productDescriptionController = TextEditingController();
   final TextEditingController _productStockController = TextEditingController();
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _productName.dispose();
+    _productDescription.dispose();
+    _productPrice.dispose();
+    _productStock.dispose();
+
+    _productNameController.dispose();
+    _productDescriptionController.dispose();
+    _productPriceController.dispose();
+    _productStockController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ProductProvider productProvider = context.read<ProductProvider>();
+    final bool productAdded = context.watch<ProductProvider>().productAdded;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (productAdded) {
+        setState(() => _isLoading = false);
+        productProvider.resetFlags();
+      }
+    });
+
+    void validateInputs() {
+      if (
+        _productNameController.text == ''
+        || _productDescriptionController.text == ''
+        || _productPriceController.text == ''
+        || _productStockController.text == ''
+      ) 
+      {
+        throw ErrorHint('Todos los campos son obligatorios');
+      }
+
+      try {
+        double price = double.parse(_productPriceController.text);
+        int stock = int.parse(_productStockController.text);
+
+        if (price < 0.0 || stock < 0) {
+          throw ErrorHint('El precio y el stock no pueden ser menos de 0');
+        }
+      } on FormatException {
+        throw ErrorHint('El precio y el stock deben ser números válidos');
+      }
+    }
+
+    void clearControllers() {
+      _productNameController.text = '';
+      _productDescriptionController.text = '';
+      _productPriceController.text = '';
+      _productStockController.text = '';
+    }
+
+    void addProducts() async {
+      try{
+        setState(() => _isLoading = true);
+        
+        validateInputs();
+
+        String productName = _productNameController.text;
+        String productDescription = _productDescriptionController.text;
+        double productPrice = double.parse(_productPriceController.text);
+        int productStock = int.parse(_productStockController.text);
+
+        clearControllers();
+        
+        String success = await productProvider.addProduct(
+          name: productName, 
+          description: productDescription, 
+          price: productPrice, 
+          stock: productStock
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(success),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(strokeWidth: 3),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Añadir producto'),
@@ -122,9 +219,7 @@ class _AddProductState extends State<AddProduct> {
                         width: double.infinity,
                         height: 50.0,
                         child: FilledButton(
-                          onPressed: () async {
-                            
-                          },
+                          onPressed: addProducts,
                           child: const Text('Registrarse')
                         ),
                       )

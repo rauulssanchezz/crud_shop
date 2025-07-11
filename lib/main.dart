@@ -3,6 +3,7 @@ import 'package:crud_shop/config/router/app_router.dart';
 import 'package:crud_shop/config/theme/app_theme.dart';
 import 'package:crud_shop/presentation/providers/auth_provider.dart';
 import 'package:crud_shop/presentation/providers/navigation_provider.dart';
+import 'package:crud_shop/presentation/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -15,11 +16,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthProvider(db: FirebaseFirestore.instance)),
-        ChangeNotifierProvider(create: (context) => NavigationProvider())
+        ChangeNotifierProvider(create: (context) => AuthProvider(db: db)),
+        ChangeNotifierProvider(create: (context) => NavigationProvider()),
+        ChangeNotifierProvider(create: (context) => ProductProvider(db: db))
       ],
       child: const MyApp(),
     )
