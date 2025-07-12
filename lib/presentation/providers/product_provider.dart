@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crud_shop/domain/models/product_model.dart';
 import 'package:flutter/material.dart';
 
 class ProductProvider extends ChangeNotifier {
@@ -19,6 +20,27 @@ class ProductProvider extends ChangeNotifier {
     
 
     return querySnapshot;
+  }
+
+  Future<List<ProductModel>> getProducts() async {
+    try {
+      final querySnapshot = await _db.collection('products').get();
+
+      if (querySnapshot.docs.isEmpty) {
+        _errorMessage = 'No hay productos disponibles';
+        throw ErrorHint(_errorMessage);
+      }
+
+      final products = querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      
+      return ProductModel.fromMap(data);
+      }).toList();
+
+      return products;
+    } catch (e) {
+      throw ErrorHint(_errorMessage);
+    }
   }
 
   Future<String> addProduct({

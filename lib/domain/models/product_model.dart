@@ -1,4 +1,4 @@
-class Product {
+class ProductModel {
   final String _id;
   String _name;
   String _description;
@@ -6,7 +6,7 @@ class Product {
   int _stock;
   bool _hasChanges = false;
 
-  Product({
+  ProductModel({
     required String name,
     required String description,
     required double price,
@@ -54,8 +54,8 @@ class Product {
     }
   }
 
-  factory Product.fromMap(Map<String, dynamic> map) {
-    return Product(
+  factory ProductModel.fromMap(Map<String, dynamic> map) {
+    return ProductModel(
       name: map['name'] ?? '',
       description: map['description'] ?? '',
       price: map['price'] ?? 0.0,
